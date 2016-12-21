@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>canvas心电图</title>
+        <style type="text/css">
+            #cardiograph{
+                margin-left:78px;
+                margin-bottom:50px;
+                background-color:#000000;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="cardiograph" width="600" height="320"></canvas>
+
+        <script src="../lib/jquery-1.10.1.js"></script>
+        <script src="../lib/excanvas.js"></script>
+        <script src="../lib/html5.js"></script>
+        <script type="text/javascript">
+            can = document.getElementById("cardiograph");
+            var ctx = can.getContext("2d");
+            var MAX_BAR_NUM = 60;
+            var realTimeVolumeHandle;
+            var realTimeVolumeList = new Array(MAX_BAR_NUM).join(0).split('');
+
+            genGraph();
+
+            function genGraph()
+            {
+                clearTimeout(realTimeVolumeHandle);
+
+                /* 为了异步数据请求，最好不用setInterval */
+                realTimeVolumeHandle = setTimeout(getRealTimeVolume, 1000);
+            }
+
+            function clearGraph(lineInfo)
+            {
+                clearBar(lineInfo);
+
+                for(var i = 0; i < MAX_BAR_NUM; i++)
+                {
+                    realTimeVolumeList[i] = 0;
+                }
+            }
+
+            function getRealTimeVolume()
+            {
+                //test data, volume range from 0 to 100
+                var realTimeVolume = Math.floor(Math.random()*100);
+
+                //实现一种循环队列
+                for(var i = 0; i < MAX_BAR_NUM -1; i++)
+                {
+                    realTimeVolumeList[i] = realTimeVolumeList[i+1];
+                }
+                realTimeVolumeList[MAX_BAR_NUM-1] = realTimeVolume;
+
+                var lineInfo = {"data":realTimeVolumeList,"canvasId":"canvasVoice"};
+                createLine(lineInfo);
+                genGraph();
+            }
+
+            function createLine(lineInfo)
+            {
+                ctx.clearRect(0, 0, can.width, can.height);
+
+                //绘制MAX_BAR_NUM根条状图
+                for(var i = 0; i < MAX_BAR_NUM-1; i++)
+                {
+                    ctx.strokeStyle = "darkgreen";
+                    ctx.lineWidth = "2";
+                    ctx.beginPath();
+                    ctx.moveTo(can.width/MAX_BAR_NUM*i, can.height-lineInfo.data[i]*can.height/100);
+                    ctx.lineTo(can.width/MAX_BAR_NUM*(i+1), can.height-lineInfo.data[i+1]*can.height/100);
+                    ctx.stroke();
+                }
+            }
+
+            function clearBar(lineInfo)
+            {
+                ctx.clearRect(0, 0, can.width, can.height);
+            }
+
+        </script>
+    </body>
+</html>

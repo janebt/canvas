@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>报表(日周月年)</title>
+        <style type="text/css">
+            #canvasArea
+            {
+                border: 0px;
+                border-radius: 15px;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvasBarChart" width="720" height="440"></canvas>
+        <canvas id="canvasLineChart" width="720" height="440"></canvas>
+        <script src="../lib/jquery-1.10.1.js"></script>
+        <script src="../lib/excanvas.js"></script>
+        <script src="../lib/html5.js"></script>
+        <script src="../class/myChart.js"></script>
+        <script type="text/javascript">
+            var entry = [];//存放原始的统计数据, 供生成列表使用
+            var entryList = [];//存放整理后的统计数据，供画图使用，Object型
+            var countMode = new Array("day", "week", "month", "year");
+            var countListFilterMode;
+            var circlecountModeNum = 0;
+            var date=new Date();
+            var yearDT=date.getFullYear().toString();
+            var monthDT=(date.getMonth()+1).toString();
+
+            getTableEntryData();
+            setInterval(function(){
+                getTableEntryData();
+            }, 12000);
+
+            setInterval(function(){
+                countListFilterMode = countMode[circlecountModeNum++%countMode.length];
+                drawGraph("barChart",countListFilterMode);
+                drawGraph("lineChart",countListFilterMode);
+            }, 3000);
+
+            //Use random data
+            function getTableEntryData(listType)
+            {
+                for(var i = 0; i < 31; i++)
+                {
+                    entry[i] = Math.floor(Math.random()*100);
+                }
+            }
+
+            function getDaysInOneMonth(year, month)
+            {
+                month = parseInt(month, 10);
+                var d = new Date(year, month, 0);
+                return d.getDate();
+            }
+
+            function genGraphList()
+            {
+                entryList = [];
+                var xyValue = {};
+                var dayNum = getDaysInOneMonth(yearDT, monthDT);
+
+                switch(countListFilterMode)
+                {
+                    case "day":
+                        for (var i = 0; i < 24; i++)
+                        {
+                            xyValue = {};
+                            xyValue["name"] = i + 1;
+                            xyValue["value"] = entry[i];
+                            entryList[i] = xyValue;
+                        }
+                        break;
+                    case "week":
+                        var dataValue = ["周一", "周二", "周三", "周四", "周五", "周六","周日"];
+                        for (var i = 0; i < 7; i++)
+                        {
+                            xyValue = [];
+                            xyValue["name"] = dataValue[i];
+                            xyValue["value"] = entry[i];
+                            entryList[i] = xyValue;
+                        }
+                        break;
+                    case "month":
+                        for (var i = 0; i < dayNum; i++)
+                        {
+                            xyValue = [];
+                            xyValue["name"] = i + 1;
+                            xyValue["value"] = entry[i];
+                            entryList[i] = xyValue;
+                        }
+                        break;
+                    case "year":
+                        var year = ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"];
+
+                        for (var i = 0; i < 12; i++)
+                        {
+                            xyValue = [];
+                            xyValue["name"] = year[i];
+                            xyValue["value"] = entry[i];
+                            entryList[i] = xyValue;
+                        }
+                        break;
+                    default:
+                        for (var i = 0; i < 24; i++)
+                        {
+                            xyValue = {};
+                            xyValue["name"] = i + 1;
+                            xyValue["value"] = entry[i];
+                            entryList[i] = xyValue;
+                        }
+                        break;
+                }
+            }
+
+            //User define
+            function getGraphName()
+            {
+                return ("xxxx-xxxx"+ countListFilterMode +"报表");
+            }
+
+            function drawGraph(chartStyle, countListFilterMode)
+            {
+                var chartInfo = {};
+                var barWidth = 0.8;
+                var leftDis = 0.5;
+                var smallPaddingWithY = 0;
+                var smallPaddingBetween = 0;
+                var xValuePosition = "center";
+                var canvasChart = (chartStyle == "barChart") ? "canvasBarChart" : "canvasLineChart";
+
+                genGraphList();
+
+                switch(countListFilterMode)
+                {
+                    case "day":
+                        leftDis = 0;
+                        barWidth = 1;
+                        smallPaddingBetween = 1;
+                        xValuePosition = "right";
+                        break;
+                    case "week":
+                        leftDis = 0.417;
+                        barWidth = 0.52;
+                        break;
+                    case "month":
+                        leftDis = 0;
+                        barWidth = 1;
+                        smallPaddingBetween = 1;
+                        break;
+                    case "year":
+                        leftDis = 0;
+                        barWidth = 1;
+                        smallPaddingBetween = 2;
+                        break;
+                    default:
+                        leftDis = 0;
+                        barWidth = 1;
+                        smallPaddingBetween = 1;
+                        xValuePosition = "right";
+                        break;
+                }
+
+                    chartInfo = {"graphName":getGraphName(),
+                                 "xyData":entryList,
+                                 "barWidth":barWidth,
+                                 "leftDis":leftDis,
+                                 "xValuePosition":xValuePosition,
+                                 "canvasId":canvasChart,
+                                 "chartBackColor":"#121212",
+                                 "smallPaddingWithY":smallPaddingWithY,
+                                 "smallPaddingBetween":smallPaddingBetween};
+
+                    createChart(chartStyle, chartInfo);
+            }
+
+        </script>
+    </body>
+</html>

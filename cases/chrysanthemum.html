@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>canvas贝塞尔曲线绘制菊花</title>
+
+    </head>
+    <body>
+        <canvas id="myCanvas" width="800" height="800"></canvas>
+
+        <!--扭曲的菊花-->
+        <script type="text/javascript">
+            var canvas=document.getElementById("myCanvas");
+            var context=canvas.getContext('2d');
+
+            context.fillStyle="black";
+            context.fillRect(0,0,400,300);
+            var n=0;
+            var dx=150;
+            var dy=150;
+            var s=100;
+            context.beginPath();
+            context.globalCompositeOperation='and';
+            context.fillStyle="darkorange";
+            var x=Math.sin(0);
+            var y=Math.cos(0);
+            var dig=Math.PI/15*11;
+            context.moveTo(dx,dy);
+            for(var i=0;i<30;i++){
+                var x=Math.sin(i*dig);
+                var y=Math.cos(i*dig);
+                context.bezierCurveTo(dx+x*s,dy+y*s-100,dx+x*s+100,dy+y*s,dx+x*s,dy+y*s);
+            }
+            context.closePath();
+            context.fill();
+            context.stroke();
+        </script>
+    </body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>实时音量的N次贝塞尔曲线</title>
+        <style type="text/css">
+            #canvasVoice{
+                margin-left:78px;
+                margin-bottom:50px;
+                background-color:#aaaaaa;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvasVoice" width="600" height="300"></canvas>
+
+        <script src="../lib/jquery-1.10.1.js"></script>
+        <script src="../lib/excanvas.js"></script>
+        <script src="../lib/html5.js"></script>
+        <script src="../class/n-bezierCurve.js"></script>
+        <script type="text/javascript">
+            can = document.getElementById("canvasVoice");
+            var ctx = can.getContext("2d");
+            var MAX_POINT_NUM = 60;
+            var realTimeVolumeHandle;
+            var realTimeVolumeList = new Array(MAX_POINT_NUM+1).join(0).split('');
+
+            genGraph();
+
+            function genGraph()
+            {
+                clearTimeout(realTimeVolumeHandle);
+                realTimeVolumeHandle = setTimeout(getRealTimeVolume, 1000);
+            }
+
+            function clearGraph(pointInfo)
+            {
+                clearCurve(pointInfo);
+
+                for(var i = 0; i < MAX_POINT_NUM; i++)
+                {
+                    realTimeVolumeList[i] = 0;
+                }
+            }
+
+            function getRealTimeVolume()
+            {
+                //test data, volume range from 0 to 100
+                var realTimeVolume = Math.floor(Math.random()*100);
+                var pointInfo = [];
+                var tmp = {};
+
+                //实现一种循环队列
+                for(var i = 0; i < MAX_POINT_NUM -1; i++)
+                {
+                	tmp = {};
+                    realTimeVolumeList[i] = realTimeVolumeList[i+1];
+                    tmp["x"] = i * can.width / MAX_POINT_NUM;
+                    tmp["y"] = can.height - realTimeVolumeList[i] * can.height / 100;
+                    pointInfo[i] = tmp;
+                }
+
+                realTimeVolumeList[MAX_POINT_NUM-1] = realTimeVolume;
+                tmp["x"] = (MAX_POINT_NUM - 1) * can.width / MAX_POINT_NUM;
+                tmp["y"] = can.height - realTimeVolumeList[i] * can.height / 100;
+				pointInfo[MAX_POINT_NUM-1] = tmp;
+
+                pointInfo["canvasId"] = "canvasVoice";
+                createCurve(pointInfo);
+                genGraph();
+            }
+
+            function createCurve(pointInfo)
+            {
+            	creatBezierCurve(pointInfo);
+            }
+
+            function clearCurve(pointInfo)
+            {
+                ctx.clearRect(0, 0, can.width, can.height);
+            }
+
+        </script>
+    </body>
+</html>

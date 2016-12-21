@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>canvas实时音量条</title>
+        <style type="text/css">
+            #canvasVoice{
+                margin-left:78px;
+                margin-bottom:50px;
+                background-color:#000000;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvasVoice" width="600" height="320"></canvas>
+
+        <script src="../lib/jquery-1.10.1.js"></script>
+        <script src="../lib/excanvas.js"></script>
+        <script src="../lib/html5.js"></script>
+        <script type="text/javascript">
+            can = document.getElementById("canvasVoice");
+            var ctx = can.getContext("2d");
+            var MAX_BAR_NUM = 60;
+            var realTimeVolumeHandle;
+            var realTimeVolumeList = new Array(MAX_BAR_NUM).join(0).split('');
+
+            genGraph();
+
+            function genGraph()
+            {
+                clearTimeout(realTimeVolumeHandle);
+                realTimeVolumeHandle = setTimeout(getRealTimeVolume, 1000);
+            }
+
+            function clearGraph(barInfo)
+            {
+                clearBar(barInfo);
+
+                for(var i = 0; i < MAX_BAR_NUM; i++)
+                {
+                    realTimeVolumeList[i] = 0;
+                }
+            }
+
+            function getRealTimeVolume()
+            {
+                //test data, volume range from 0 to 100
+                var realTimeVolume = Math.floor(Math.random()*100);
+
+                //实现一种循环队列
+                for(var i = 0; i < MAX_BAR_NUM -1; i++)
+                {
+                    realTimeVolumeList[i] = realTimeVolumeList[i+1];
+                }
+                realTimeVolumeList[MAX_BAR_NUM-1] = realTimeVolume;
+
+                var barInfo = {"data":realTimeVolumeList,"canvasId":"canvasVoice"};
+                createBar(barInfo);
+                genGraph();
+            }
+
+            function createBar(barInfo)
+            {
+                ctx.clearRect(0, 0, can.width, can.height);
+
+                //绘制MAX_BAR_NUM根条状图
+                for(var i = 0; i < MAX_BAR_NUM; i++)
+                {
+                    ctx.fillStyle = "darkgreen";
+                    ctx.fillRect(can.width/MAX_BAR_NUM*i,can.height-barInfo.data[i]*can.height/100,can.width/MAX_BAR_NUM,barInfo.data[i]*can.height/100);
+                }
+            }
+
+            function clearBar(barInfo)
+            {
+                ctx.clearRect(0, 0, can.width, can.height);
+            }
+
+        </script>
+    </body>
+</html>

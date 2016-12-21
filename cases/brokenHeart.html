@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>canvas - brokenHeart</title>
+        <style type="text/css">
+            #canvasVoice{
+                margin-left:78px;
+                margin-bottom:50px;
+                //background-color:#000000;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="canvasHeart" width="300" height="200"></canvas>
+
+        <script src="../lib/jquery-1.10.1.js"></script>
+        <script src="../lib/excanvas.js"></script>
+        <script src="../lib/html5.js"></script>
+        <script type="text/javascript">
+            var drawHandle;
+            var drawStep = 0;
+            can = document.getElementById("canvasHeart");
+            var ctx = can.getContext("2d");
+
+            drawHandle = setInterval(function(){
+                dynamicDrawHeart(drawStep);
+                drawStep = ++drawStep % 7;
+            }, 1000);
+
+            function dynamicDrawHeart(step)
+            {
+                console.log(step);
+                switch (step)
+                {
+                    case 0:
+                        ctx.beginPath();
+                        ctx.moveTo(75,40);
+                        ctx.bezierCurveTo(75,37,70,25,50,25);
+                        break;
+                    case 1:
+                        ctx.bezierCurveTo(20,25,20,62.5,20,62.5);
+                        break;
+                    case 2:
+                        ctx.bezierCurveTo(20,80,40,102,75,120);
+                        break;
+                    case 3:
+                        ctx.bezierCurveTo(110,102,130,80,130,62.5);
+                        break;
+                    case 4:
+                        ctx.bezierCurveTo(130,62.5,130,25,100,25);
+                        break;
+                    case 5:
+                        ctx.bezierCurveTo(85,25,75,37,75,40);
+                        break;
+                    case 6:
+                        ctx.closePath();
+                        ctx.clearRect(0, 0, can.width, can.height);
+                        break;
+                    default:
+                        break;
+                }
+                ctx.fill();
+            }
+
+        </script>
+    </body>
+</html>
